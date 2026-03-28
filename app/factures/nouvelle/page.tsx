@@ -418,7 +418,7 @@ export default function NewInvoice() {
                   Fermer
                 </button>
                 <Link
-                  href="/clients"
+                  href="/clients/nouveau"
                   className="flex-1 btn btn-primary justify-center"
                   onClick={() => setShowNoClientsPopup(false)}
                 >
@@ -458,7 +458,7 @@ export default function NewInvoice() {
                   Fermer
                 </button>
                 <Link
-                  href="/produits"
+                  href="/produits/nouveau"
                   className="flex-1 btn btn-primary justify-center"
                   onClick={() => setShowNoProductsPopup(false)}
                 >

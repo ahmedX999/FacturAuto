@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getAllProducts, getProductsByCategory, Product } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { useNotification } from '@/lib/store';
@@ -185,15 +186,12 @@ export default function Products() {
         tooltip="Nouveau produit"
       /> */}
       {!showForm && (
-        <button
-          onClick={() => {
-            setEditingProduct(null);
-            setShowForm(true);
-          }}
+        <Link
+          href="/produits/nouveau"
           className="fixed bottom-24 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:shadow-xl active:scale-95 z-40"
         >
           <Plus size={28} />
-        </button>
+        </Link>
       )}
     </div>
   );
