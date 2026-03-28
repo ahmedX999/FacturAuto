@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getAllClients, Client } from '@/lib/db';
 import { useNotification } from '@/lib/store';
-import { Search, Edit2, Trash2, Phone, MapPin } from 'lucide-react';
+import { Edit2, Trash2, Phone, MapPin } from 'lucide-react';
 import ClientForm from '@/components/ClientForm';
 
 export default function Clients() {
@@ -61,13 +61,12 @@ export default function Clients() {
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={20} />
         <input
           type="text"
           placeholder="Rechercher par nom ou téléphone..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="input pl-10"
+          className="input"
         />
       </div>
 

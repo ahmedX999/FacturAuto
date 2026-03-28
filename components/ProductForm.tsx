@@ -130,16 +130,14 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Prix (€)</label>
+              <label className="label">Prix (MAD)</label>
               <input
                 type="number"
-                placeholder="0.00"
-                step="0.01"
                 value={formData.prix}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    prix: parseFloat(e.target.value) || 0,
+                    prix: parseFloat(e.target.value),
                   })
                 }
                 className="input"

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getAllProducts, getProductsByCategory, Product } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { useNotification } from '@/lib/store';
-import { Search, Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import ProductForm from '@/components/ProductForm';
 import ProductList from '@/components/ProductList';
@@ -79,13 +79,12 @@ export default function Products() {
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={20} />
         <input
           type="text"
           placeholder="Rechercher par nom ou référence..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="input pl-10"
+          className="input"
         />
       </div>
 
@@ -181,10 +180,10 @@ export default function Products() {
         </>
       )}
 
-      <FloatingActionButton
+      {/* <FloatingActionButton
         href="#"
         tooltip="Nouveau produit"
-      />
+      /> */}
       {!showForm && (
         <button
           onClick={() => {

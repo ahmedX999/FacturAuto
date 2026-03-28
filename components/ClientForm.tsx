@@ -83,7 +83,7 @@ export default function ClientForm({ client, onClose }: ClientFormProps) {
             <label className="label">Nom *</label>
             <input
               type="text"
-              placeholder="Ex: Jean Dupont"
+              placeholder="Ex: Mostafa Ait Mohammed"
               value={formData.nom}
               onChange={(e) =>
                 setFormData({ ...formData, nom: e.target.value })
@@ -96,7 +96,7 @@ export default function ClientForm({ client, onClose }: ClientFormProps) {
             <label className="label">Téléphone *</label>
             <input
               type="tel"
-              placeholder="Ex: +33 6 12 34 56 78"
+              placeholder="Ex: 06 12 34 56 78"
               value={formData.telephone}
               onChange={(e) =>
                 setFormData({
@@ -111,7 +111,7 @@ export default function ClientForm({ client, onClose }: ClientFormProps) {
           <div>
             <label className="label">Adresse (optionnel)</label>
             <textarea
-              placeholder="Ex: 123 Rue de la Paix, Paris"
+              placeholder="Ex: 123 Rue Hamza 1 , Marrakech"
               value={formData.adresse}
               onChange={(e) =>
                 setFormData({

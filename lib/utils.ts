@@ -82,8 +82,8 @@ export async function generatePDF(
     const itemTotal = item.quantite * item.prix_unitaire;
     doc.text(item.product?.nom || 'Produit', margin + 2, yPosition);
     doc.text(item.quantite.toString(), margin + colWidths.produit + 2, yPosition);
-    doc.text(item.prix_unitaire.toFixed(2) + ' €', margin + colWidths.produit + colWidths.qte + 2, yPosition);
-    doc.text(itemTotal.toFixed(2) + ' €', margin + colWidths.produit + colWidths.qte + colWidths.prix + 2, yPosition);
+    doc.text(item.prix_unitaire.toFixed(2) + ' MAD', margin + colWidths.produit + colWidths.qte + 2, yPosition);
+    doc.text(itemTotal.toFixed(2) + ' MAD', margin + colWidths.produit + colWidths.qte + colWidths.prix + 2, yPosition);
     yPosition += 6;
   });
 

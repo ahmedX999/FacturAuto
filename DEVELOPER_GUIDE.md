@@ -191,7 +191,7 @@ downloadFile(pdfBlob, 'facture.pdf');
 
 ### Formatage
 ```typescript
-formatCurrency(100.50);  // "100,50 €"
+formatCurrency(100.50);  // "100,50 MAD"
 formatDate('2026-03-28'); // "28/03/2026"
 getTodayDate();           // "2026-03-28"
 ```
