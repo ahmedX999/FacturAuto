@@ -337,6 +337,12 @@ export default function NewInvoice() {
                 {formatCurrency(subtotal)}
               </span>
             </div>
+            <div className="flex justify-between text-gray-700">
+              <span>
+                TVA ({settings?.tauxTVA || 20}%):
+              </span>
+              <span className="font-medium">{formatCurrency(tva)}</span>
+            </div>
             <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 pt-2">
               <span>Total:</span>
               <span className="text-blue-600">{formatCurrency(total)}</span>

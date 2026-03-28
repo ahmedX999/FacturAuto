@@ -229,6 +229,12 @@ Date: ${formatDate(invoice?.date || new Date().toISOString())}`;
               {formatCurrency(invoice.subtotal)}
             </span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-gray-700">
+              TVA ({settings?.tauxTVA || 20}%):
+            </span>
+            <span className="font-medium">{formatCurrency(invoice.tva)}</span>
+          </div>
           <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 pt-2">
             <span>Total:</span>
             <span className="text-blue-600">{formatCurrency(invoice.total)}</span>
