@@ -44,7 +44,7 @@ export default function NewInvoice() {
     
     setClients(cls);
     setProducts(prds);
-    setSettings(stngs);
+    setSettings(stngs || null);
   }
 
   function filteredProducts() {

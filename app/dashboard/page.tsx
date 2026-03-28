@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAllInvoices, getAllProducts, getTodayDate } from '@/lib/db';
+import { getAllInvoices, getAllProducts } from '@/lib/db';
 import { Invoice, Product } from '@/lib/db';
 import { formatCurrency, getTodayDate as getTodayDateUtil } from '@/lib/utils';
 import { TrendingUp, FileText, Package, DollarSign } from 'lucide-react';

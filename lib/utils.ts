@@ -15,12 +15,12 @@ export async function generatePDF(
 
   // Header - Store information
   doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text(settings.nomMagasin, pageWidth / 2, yPosition, { align: 'center' });
   yPosition += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text(settings.adresse, pageWidth / 2, yPosition, { align: 'center' });
   yPosition += 5;
   doc.text(settings.telephone, pageWidth / 2, yPosition, { align: 'center' });
@@ -28,21 +28,21 @@ export async function generatePDF(
 
   // Invoice title and number
   doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('FACTURE', pageWidth / 2, yPosition, { align: 'center' });
   yPosition += 8;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text(`Numéro: ${invoice.numero_facture}`, margin, yPosition);
   doc.text(`Date: ${new Date(invoice.date).toLocaleDateString('fr-FR')}`, pageWidth / 2, yPosition);
   yPosition += 8;
 
   // Client information
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Client:', margin, yPosition);
   yPosition += 5;
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text(client.nom, margin + 2, yPosition);
   yPosition += 5;
   doc.text(client.telephone, margin + 2, yPosition);
@@ -61,7 +61,7 @@ export async function generatePDF(
     total: 30,
   };
 
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFillColor(200, 200, 200);
   doc.rect(margin, yPosition, pageWidth - 2 * margin, 6, 'F');
 
@@ -72,7 +72,7 @@ export async function generatePDF(
   yPosition += 8;
 
   // Table rows
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   items.forEach((item) => {
     if (yPosition > 250) {
       doc.addPage();
@@ -90,7 +90,7 @@ export async function generatePDF(
   yPosition += 5;
 
   // Totals
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   const subtotal = invoice.subtotal;
   const tva = invoice.tva;
   const total = invoice.total;

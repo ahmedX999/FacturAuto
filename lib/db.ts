@@ -18,7 +18,7 @@ export interface Client {
 
 export interface InvoiceItem {
   id?: number;
-  invoiceId: number;
+  invoiceId?: number;
   productId: number;
   quantite: number;
   prix_unitaire: number;
@@ -201,7 +201,8 @@ export async function getSettings() {
   const settings = await db.settings.toArray();
   if (settings.length === 0) {
     await initializeSettings();
-    return await db.settings.toArray();
+    const newSettings = await db.settings.toArray();
+    return newSettings[0];
   }
   return settings[0];
 }

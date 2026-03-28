@@ -63,7 +63,7 @@ export default function InvoiceDetail() {
       setInvoice(inv);
       setClient(cl || null);
       setItems(itemsWithProducts);
-      setSettings(stngs);
+      setSettings(stngs || null);
     } catch (error) {
       showNotification('Erreur lors du chargement', 'error');
     } finally {
