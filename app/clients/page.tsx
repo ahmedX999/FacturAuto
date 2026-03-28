@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getAllClients, Client } from '@/lib/db';
 import { useNotification } from '@/lib/store';
-import { Edit2, Trash2, Phone, MapPin } from 'lucide-react';
+import { Edit2, Trash2, Phone, MapPin, Plus } from 'lucide-react';
 import ClientForm from '@/components/ClientForm';
 
 export default function Clients() {
@@ -147,7 +147,7 @@ export default function Clients() {
           }}
           className="fixed bottom-24 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:shadow-xl active:scale-95 z-40"
         >
-          <span className="text-2xl">+</span>
+          <Plus size={28} />
         </button>
       )}
     </div>
