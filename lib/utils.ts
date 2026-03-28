@@ -8,101 +8,53 @@ export async function generatePDF(
   items: (InvoiceItem & { product?: Product })[],
   settings: Settings
 ): Promise<Blob> {
-  const doc = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 10;
-  let yPosition = margin;
+  // Generate PNG first and embed it into PDF for identical visual fidelity
+  const pngBlob = await generatePNG(invoice, client, items, settings);
 
-  // Header - Store information
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(settings.nomMagasin, pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 8;
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(settings.adresse, pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 5;
-  doc.text(settings.telephone, pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 10;
-
-  // Invoice title and number
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('FACTURE', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 8;
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Numéro: ${invoice.numero_facture}`, margin, yPosition);
-  doc.text(`Date: ${new Date(invoice.date).toLocaleDateString('fr-FR')}`, pageWidth / 2, yPosition);
-  yPosition += 8;
-
-  // Client information
-  doc.setFont('helvetica', 'bold');
-  doc.text('Client:', margin, yPosition);
-  yPosition += 5;
-  doc.setFont('helvetica', 'normal');
-  doc.text(client.nom, margin + 2, yPosition);
-  yPosition += 5;
-  doc.text(client.telephone, margin + 2, yPosition);
-  if (client.adresse) {
-    yPosition += 5;
-    doc.text(client.adresse, margin + 2, yPosition);
-  }
-  yPosition += 10;
-
-  // Table header
-  const startY = yPosition;
-  const colWidths = {
-    produit: 70,
-    qte: 20,
-    prix: 30,
-    total: 30,
-  };
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFillColor(200, 200, 200);
-  doc.rect(margin, yPosition, pageWidth - 2 * margin, 6, 'F');
-
-  doc.text('Produit', margin + 2, yPosition + 4);
-  doc.text('Qté', margin + colWidths.produit + 2, yPosition + 4);
-  doc.text('Prix', margin + colWidths.produit + colWidths.qte + 2, yPosition + 4);
-  doc.text('Total', margin + colWidths.produit + colWidths.qte + colWidths.prix + 2, yPosition + 4);
-  yPosition += 8;
-
-  // Table rows
-  doc.setFont('helvetica', 'normal');
-  items.forEach((item) => {
-    if (yPosition > 250) {
-      doc.addPage();
-      yPosition = margin;
-    }
-
-    const itemTotal = item.quantite * item.prix_unitaire;
-    doc.text(item.product?.nom || 'Produit', margin + 2, yPosition);
-    doc.text(item.quantite.toString(), margin + colWidths.produit + 2, yPosition);
-    doc.text(item.prix_unitaire.toFixed(2) + ' MAD', margin + colWidths.produit + colWidths.qte + 2, yPosition);
-    doc.text(itemTotal.toFixed(2) + ' MAD', margin + colWidths.produit + colWidths.qte + colWidths.prix + 2, yPosition);
-    yPosition += 6;
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('Failed to convert PNG to data URL'));
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(pngBlob);
   });
 
-  yPosition += 5;
+  await new Promise<void>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = (err) => reject(err);
+    img.src = dataUrl;
+  });
 
-  // Totals
-  doc.setFont('helvetica', 'bold');
-  const subtotal = invoice.subtotal;
-  const total = invoice.total;
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (err) => reject(err);
+    img.src = dataUrl;
+  });
 
-  doc.text('Sous-total:', pageWidth - margin - 50, yPosition);
-  doc.text(formatCurrency(subtotal), pageWidth - margin - 15, yPosition, { align: 'right' });
-  yPosition += 6;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 10;
 
-  doc.setFontSize(12);
-  doc.setFillColor(240, 240, 240);
-  doc.rect(pageWidth - margin - 50, yPosition - 4, 50, 8, 'F');
-  doc.text('Total:', pageWidth - margin - 50, yPosition);
-  doc.text(formatCurrency(total), pageWidth - margin - 15, yPosition, { align: 'right' });
+  const imgWidthMm = pageWidth - margin * 2;
+  const aspectRatio = img.width / img.height;
+  let imgHeightMm = imgWidthMm / aspectRatio;
+
+  if (imgHeightMm > pageHeight - margin * 2) {
+    imgHeightMm = pageHeight - margin * 2;
+  }
+
+  const x = (pageWidth - imgWidthMm) / 2;
+  const y = (pageHeight - imgHeightMm) / 2;
+
+  doc.addImage(dataUrl, 'PNG', x, y, imgWidthMm, imgHeightMm);
 
   return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
 }
