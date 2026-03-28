@@ -4,7 +4,16 @@ export interface Product {
   id?: number;
   nom: string;
   reference: string;
-  categorie: 'Moteur' | 'Freinage' | 'Suspension' | 'Électrique' | 'Autre';
+  categorie:
+    | 'Moteur'
+    | 'Freinage'
+    | 'Suspension'
+    | 'Électrique'
+    | 'Carrosserie'
+    | 'Transmission'
+    | 'Refroidissement'
+    | 'Accessoires'
+    | 'Autre';
   prix: number;
   stock: number;
 }
@@ -71,7 +80,7 @@ export async function initializeSettings() {
     await db.settings.add({
       nomMagasin: 'Mon Auto-Pièces',
       adresse: 'Adresse du magasin',
-      telephone: '+33 1 23 45 67 89',
+      telephone: '+212 6 12 34 56 78',
       tauxTVA: 20,
       lastInvoiceNumber: 0,
     });

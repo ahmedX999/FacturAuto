@@ -137,21 +137,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div>
-            <label className="label">Taux TVA (%)</label>
-            <input
-              type="number"
-              step="0.1"
-              value={formData.tauxTVA || 20}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  tauxTVA: parseFloat(e.target.value) || 20,
-                })
-              }
-              className="input"
-            />
-          </div>
+          {/* TVA supprimée. Pas de configuration nécessaire. */}
 
           <button
             type="submit"

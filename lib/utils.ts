@@ -92,22 +92,17 @@ export async function generatePDF(
   // Totals
   doc.setFont('helvetica', 'bold');
   const subtotal = invoice.subtotal;
-  const tva = invoice.tva;
   const total = invoice.total;
 
   doc.text('Sous-total:', pageWidth - margin - 50, yPosition);
-  doc.text(subtotal.toFixed(2) + ' €', pageWidth - margin - 15, yPosition, { align: 'right' });
-  yPosition += 6;
-
-  doc.text(`TVA (${settings.tauxTVA}%):`, pageWidth - margin - 50, yPosition);
-  doc.text(tva.toFixed(2) + ' €', pageWidth - margin - 15, yPosition, { align: 'right' });
+  doc.text(formatCurrency(subtotal), pageWidth - margin - 15, yPosition, { align: 'right' });
   yPosition += 6;
 
   doc.setFontSize(12);
   doc.setFillColor(240, 240, 240);
   doc.rect(pageWidth - margin - 50, yPosition - 4, 50, 8, 'F');
   doc.text('Total:', pageWidth - margin - 50, yPosition);
-  doc.text(total.toFixed(2) + ' €', pageWidth - margin - 15, yPosition, { align: 'right' });
+  doc.text(formatCurrency(total), pageWidth - margin - 15, yPosition, { align: 'right' });
 
   return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
 }
@@ -115,7 +110,7 @@ export async function generatePDF(
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'EUR',
+    currency: 'MAD',
   }).format(amount);
 }
 

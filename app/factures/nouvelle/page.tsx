@@ -91,11 +91,11 @@ export default function NewInvoice() {
       (sum, item) => sum + item.quantite * item.prix_unitaire,
       0
     );
-    const tva = (subtotal * (settings?.tauxTVA || 20)) / 100;
+    const tva = 20;
     return {
       subtotal,
       tva,
-      total: subtotal + tva,
+      total: subtotal,
     };
   }
 
@@ -336,12 +336,6 @@ export default function NewInvoice() {
               <span className="font-medium">
                 {formatCurrency(subtotal)}
               </span>
-            </div>
-            <div className="flex justify-between text-gray-700">
-              <span>
-                TVA ({settings?.tauxTVA || 20}%):
-              </span>
-              <span className="font-medium">{formatCurrency(tva)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 pt-2">
               <span>Total:</span>

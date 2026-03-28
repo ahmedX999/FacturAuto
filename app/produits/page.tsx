@@ -9,7 +9,7 @@ import FloatingActionButton from '@/components/FloatingActionButton';
 import ProductForm from '@/components/ProductForm';
 import ProductList from '@/components/ProductList';
 
-const CATEGORIES = ['Moteur', 'Freinage', 'Suspension', 'Électrique', 'Autre'];
+const CATEGORIES = ['Moteur', 'Freinage', 'Suspension', 'Électrique', 'Carrosserie', 'Transmission', 'Refroidissement', 'Accessoires', 'Autre'];
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);

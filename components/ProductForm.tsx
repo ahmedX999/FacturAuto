@@ -5,7 +5,7 @@ import { Product, addProduct, updateProduct, deleteProduct } from '@/lib/db';
 import { useNotification } from '@/lib/store';
 import { X, Trash2 } from 'lucide-react';
 
-const CATEGORIES = ['Moteur', 'Freinage', 'Suspension', 'Électrique', 'Autre'];
+const CATEGORIES = ['Moteur', 'Freinage', 'Suspension', 'Électrique', 'Carrosserie', 'Transmission', 'Refroidissement', 'Accessoires', 'Autre'];
 
 interface ProductFormProps {
   product?: Product;

@@ -27,7 +27,7 @@ import { ArrowLeft, Download, Share2, CheckCircle2 } from 'lucide-react';
 export default function InvoiceDetail() {
   const params = useParams();
   const router = useRouter();
-  const invoiceId = parseInt(params.id as string);
+  const invoiceId = params?.id ? parseInt(params.id as string, 10) : 0;
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [client, setClient] = useState<Client | null>(null);
@@ -228,12 +228,6 @@ Date: ${formatDate(invoice?.date || new Date().toISOString())}`;
             <span className="font-medium">
               {formatCurrency(invoice.subtotal)}
             </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-700">
-              TVA ({settings?.tauxTVA || 20}%):
-            </span>
-            <span className="font-medium">{formatCurrency(invoice.tva)}</span>
           </div>
           <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 pt-2">
             <span>Total:</span>
