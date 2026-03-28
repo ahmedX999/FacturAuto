@@ -125,7 +125,7 @@ export default function SettingsPage() {
           <div>
             <label className="label">Téléphone</label>
             <input
-              type="tel"
+              type="text"
               value={formData.telephone || ''}
               onChange={(e) =>
                 setFormData({
