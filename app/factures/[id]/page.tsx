@@ -18,6 +18,7 @@ import {
   formatCurrency,
   formatDate,
   generatePDF,
+  generatePNG,
   downloadFile,
   shareViaWhatsApp,
 } from '@/lib/utils';
@@ -84,6 +85,19 @@ export default function InvoiceDetail() {
     }
   }
 
+  async function handleDownloadPNG() {
+    if (!invoice || !client || !settings) return;
+
+    try {
+      const pngBlob = await generatePNG(invoice, client, items, settings);
+      downloadFile(pngBlob, `${invoice.numero_facture}.png`);
+      showNotification('Image PNG téléchargée', 'success');
+    } catch (error) {
+      console.error('PNG generation error:', error);
+      showNotification('Erreur lors de la génération de l\'image', 'error');
+    }
+  }
+
   async function handleMarkAsPaid() {
     if (!invoice) return;
 
@@ -101,12 +115,29 @@ export default function InvoiceDetail() {
     }
   }
 
-  function handleShareOnWhatsApp() {
-    const message = `Facture #${invoice?.numero_facture}
-Total: ${formatCurrency(invoice?.total || 0)}
-Date: ${formatDate(invoice?.date || new Date().toISOString())}`;
+  async function handleShareOnWhatsApp() {
+    if (!invoice || !client || !settings) return;
 
-    shareViaWhatsApp(message);
+    try {
+      const pngBlob = await generatePNG(invoice, client, items, settings);
+      const file = new File([pngBlob], `${invoice.numero_facture}.png`, { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `Facture ${invoice.numero_facture}`,
+          text: `Facture ${invoice.numero_facture} - ${client.nom}`,
+          files: [file],
+        });
+      } else {
+        // Fallback to WhatsApp with text
+        const message = `Facture #${invoice.numero_facture}\nTotal: ${formatCurrency(invoice.total)}\nDate: ${formatDate(invoice.date)}`;
+        shareViaWhatsApp(message);
+      }
+      showNotification('Partage initié', 'success');
+    } catch (error) {
+      console.error('Sharing error:', error);
+      showNotification('Erreur lors du partage', 'error');
+    }
   }
 
   if (loading) {
@@ -126,91 +157,89 @@ Date: ${formatDate(invoice?.date || new Date().toISOString())}`;
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center justify-between">
         <button
           onClick={() => router.back()}
-          className="text-blue-600 hover:text-blue-700"
+          className="text-blue-600 hover:text-blue-700 p-2"
         >
-          <ArrowLeft size={28} />
+          <ArrowLeft size={24} />
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {invoice.numero_facture}
+        <h1 className="text-2xl font-bold text-gray-900 text-center flex-1">
+          Facture {invoice.numero_facture}
         </h1>
+        <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Status */}
-      <div className="card">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600">Statut</p>
-            <p className="text-lg font-bold">
-              {invoice.statut === 'payée' ? 'Payée ✓' : 'Non payée'}
-            </p>
-          </div>
-          <span
-            className={`px-4 py-2 rounded-full font-medium ${
-              invoice.statut === 'payée'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}
-          >
-            {invoice.statut === 'payée' ? 'Payée' : 'En attente'}
-          </span>
-        </div>
+      {/* Status Badge */}
+      <div className="flex justify-center">
+        <span
+          className={`px-6 py-2 rounded-full font-semibold text-sm ${
+            invoice.statut === 'payée'
+              ? 'bg-green-100 text-green-800 border-2 border-green-200'
+              : 'bg-yellow-100 text-yellow-800 border-2 border-yellow-200'
+          }`}
+        >
+          {invoice.statut === 'payée' ? '✓ Payée' : 'En attente de paiement'}
+        </span>
       </div>
 
-      {/* Invoice Info */}
-      <div className="card">
-        <div className="grid grid-cols-2 gap-4">
+      {/* Invoice Details */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+        {/* Date and Invoice Info */}
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Date</p>
-            <p className="font-medium">{formatDate(invoice.date)}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Client</p>
-            <p className="font-medium">{client.nom}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Téléphone</p>
-            <a href={`tel:${client.telephone}`} className="text-blue-600 underline">
-              {client.telephone}
-            </a>
-          </div>
-          {client.adresse && (
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Adresse</p>
-              <p className="font-medium text-sm">{client.adresse}</p>
+            <h3 className="font-semibold text-gray-900 mb-2">Informations facture</h3>
+            <div className="space-y-1 text-sm">
+              <p><span className="text-gray-600">Numéro:</span> {invoice.numero_facture}</p>
+              <p><span className="text-gray-600">Date:</span> {formatDate(invoice.date)}</p>
             </div>
-          )}
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-2">Client</h3>
+            <div className="space-y-1 text-sm">
+              <p className="font-medium">{client.nom}</p>
+              <a href={`tel:${client.telephone}`} className="text-blue-600 hover:underline">
+                {client.telephone}
+              </a>
+              {client.adresse && <p className="text-gray-600">{client.adresse}</p>}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Items Table */}
-      <div className="card">
-        <h3 className="font-bold mb-3">Articles</h3>
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+          <h3 className="font-semibold text-gray-900">Articles commandés</h3>
+        </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b-2 border-gray-200">
-                <th className="text-left py-2 px-2">Produit</th>
-                <th className="text-center py-2 px-2">Qté</th>
-                <th className="text-right py-2 px-2">Prix</th>
-                <th className="text-right py-2 px-2">Total</th>
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left py-3 px-6 font-semibold text-gray-900">Produit</th>
+                <th className="text-center py-3 px-6 font-semibold text-gray-900">Quantité</th>
+                <th className="text-right py-3 px-6 font-semibold text-gray-900">Prix unitaire</th>
+                <th className="text-right py-3 px-6 font-semibold text-gray-900">Total</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {items.map((item, index) => (
-                <tr key={index} className="border-b border-gray-100">
-                  <td className="py-2 px-2 font-medium">
-                    {item.product?.nom || 'Produit supprimé'}
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="py-4 px-6">
+                    <div className="font-medium text-gray-900">
+                      {item.product?.nom || 'Produit supprimé'}
+                    </div>
+                    {item.product?.reference && (
+                      <div className="text-sm text-gray-500">Réf: {item.product.reference}</div>
+                    )}
                   </td>
-                  <td className="py-2 px-2 text-center">{item.quantite}</td>
-                  <td className="py-2 px-2 text-right">
+                  <td className="py-4 px-6 text-center font-medium">{item.quantite}</td>
+                  <td className="py-4 px-6 text-right font-medium">
                     {formatCurrency(item.prix_unitaire)}
                   </td>
-                  <td className="py-2 px-2 text-right font-medium">
+                  <td className="py-4 px-6 text-right font-semibold text-gray-900">
                     {formatCurrency(item.quantite * item.prix_unitaire)}
                   </td>
                 </tr>
@@ -220,46 +249,57 @@ Date: ${formatDate(invoice?.date || new Date().toISOString())}`;
         </div>
       </div>
 
-      {/* Totals */}
-      <div className="card bg-blue-50 border-2 border-blue-200">
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-700">Sous-total:</span>
-            <span className="font-medium">
+      {/* Totals Summary */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-6">
+        <h3 className="font-semibold text-gray-900 mb-4 text-center">Récapitulatif</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-700 font-medium">Sous-total:</span>
+            <span className="font-semibold text-gray-900">
               {formatCurrency(invoice.subtotal)}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-700">
+          <div className="flex justify-between items-center py-2">
+            <span className="text-gray-700 font-medium">
               TVA incluant (20%):
             </span>
-            <span className="font-medium">{formatCurrency(invoice.total * 0.2)}</span>
+            <span className="font-semibold text-gray-900">{formatCurrency(invoice.total * 0.2)}</span>
           </div>
-          <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 pt-2">
-            <span>Total:</span>
-            <span className="text-blue-600">{formatCurrency(invoice.total)}</span>
+          <div className="border-t-2 border-blue-300 pt-3 mt-3">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-bold text-gray-900">Total à payer:</span>
+              <span className="text-2xl font-bold text-blue-600">{formatCurrency(invoice.total)}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Actions */}
       <div className="space-y-3">
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             onClick={handleDownloadPDF}
-            className="btn btn-secondary flex-1 justify-center gap-2"
+            className="btn btn-secondary justify-center gap-2"
           >
             <Download size={20} />
-            Télécharger PDF
+            PDF
           </button>
           <button
-            onClick={handleShareOnWhatsApp}
-            className="btn btn-secondary flex-1 justify-center gap-2"
+            onClick={handleDownloadPNG}
+            className="btn btn-secondary justify-center gap-2"
           >
-            <Share2 size={20} />
-            WhatsApp
+            <Download size={20} />
+            Image PNG
           </button>
         </div>
+
+        <button
+          onClick={handleShareOnWhatsApp}
+          className="btn btn-secondary w-full justify-center gap-2"
+        >
+          <Share2 size={20} />
+          Partager
+        </button>
 
         {invoice.statut !== 'payée' && (
           <button
