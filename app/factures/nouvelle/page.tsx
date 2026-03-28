@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   getAllClients,
   getAllProducts,
@@ -15,7 +16,7 @@ import {
 } from '@/lib/db';
 import { useInvoiceForm, useNotification } from '@/lib/store';
 import { formatCurrency } from '@/lib/utils';
-import { Minus, Plus, Trash2, ChevronDown } from 'lucide-react';
+import { Minus, Plus, Trash2, ChevronDown, X } from 'lucide-react';
 
 export default function NewInvoice() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function NewInvoice() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [showNoClientsPopup, setShowNoClientsPopup] = useState(false);
+  const [showNoProductsPopup, setShowNoProductsPopup] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -149,7 +152,13 @@ export default function NewInvoice() {
         <label className="label">Client *</label>
         <div className="relative mb-2">
           <button
-            onClick={() => setShowClientDropdown(!showClientDropdown)}
+            onClick={() => {
+              if (clients.length === 0) {
+                setShowNoClientsPopup(true);
+              } else {
+                setShowClientDropdown(!showClientDropdown);
+              }
+            }}
             className="input w-full text-left flex items-center justify-between pl-3"
           >
             <span>
@@ -158,7 +167,7 @@ export default function NewInvoice() {
             <ChevronDown size={20} />
           </button>
 
-          {showClientDropdown && (
+          {showClientDropdown && clients.length > 0 && (
             <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg z-40 max-h-48 overflow-y-auto">
               {clients.map((client) => (
                 <button
@@ -189,30 +198,42 @@ export default function NewInvoice() {
             placeholder="Rechercher un produit..."
             value={searchProductQuery}
             onChange={(e) => setSearchProductQuery(e.target.value)}
-            onFocus={() => setShowProductDropdown(true)}
+            onFocus={() => {
+              if (products.length === 0) {
+                setShowNoProductsPopup(true);
+              } else {
+                setShowProductDropdown(true);
+              }
+            }}
             className="input"
           />
 
-          {showProductDropdown && filteredProducts().length > 0 && (
+          {showProductDropdown && products.length > 0 && (
             <div className="absolute left-4 right-4 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg z-40 max-h-48 overflow-y-auto">
-              {filteredProducts().map((product) => (
-                <button
-                  key={product.id}
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setShowProductDropdown(false);
-                    setSearchProductQuery('');
-                  }}
-                  disabled={product.stock <= 0}
-                  className="w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="font-medium">{product.nom}</div>
-                  <div className="text-sm text-gray-600">
-                    {product.reference} • {formatCurrency(product.prix)} •
-                    Stock: {product.stock}
-                  </div>
-                </button>
-              ))}
+              {filteredProducts().length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  <p>Aucun produit ne correspond à votre recherche</p>
+                </div>
+              ) : (
+                filteredProducts().map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setShowProductDropdown(false);
+                      setSearchProductQuery('');
+                    }}
+                    disabled={product.stock <= 0}
+                    className="w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="font-medium">{product.nom}</div>
+                    <div className="text-sm text-gray-600">
+                      {product.reference} • {formatCurrency(product.prix)} •
+                      Stock: {product.stock}
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
           )}
         </div>
@@ -368,6 +389,86 @@ export default function NewInvoice() {
           {loading ? 'Création...' : 'Créer facture'}
         </button>
       </div>
+
+      {/* No Clients Popup */}
+      {showNoClientsPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl relative">
+            <button
+              onClick={() => setShowNoClientsPopup(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun client trouvé</h3>
+                <p className="text-gray-600 text-sm">Vous devez ajouter au moins un client avant de créer une facture.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowNoClientsPopup(false)}
+                  className="flex-1 btn btn-secondary"
+                >
+                  Fermer
+                </button>
+                <Link
+                  href="/clients"
+                  className="flex-1 btn btn-primary justify-center"
+                  onClick={() => setShowNoClientsPopup(false)}
+                >
+                  Ajouter un client
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No Products Popup */}
+      {showNoProductsPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl relative">
+            <button
+              onClick={() => setShowNoProductsPopup(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <div className="text-center">
+              <div className="mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun produit trouvé</h3>
+                <p className="text-gray-600 text-sm">Vous devez ajouter au moins un produit avant de créer une facture.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowNoProductsPopup(false)}
+                  className="flex-1 btn btn-secondary"
+                >
+                  Fermer
+                </button>
+                <Link
+                  href="/produits"
+                  className="flex-1 btn btn-primary justify-center"
+                  onClick={() => setShowNoProductsPopup(false)}
+                >
+                  Ajouter un produit
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
