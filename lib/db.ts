@@ -16,6 +16,7 @@ export interface Product {
     | 'Autre';
   prix: number;
   stock: number;
+  deleted?: boolean; // soft delete flag
 }
 
 export interface Client {
@@ -23,6 +24,7 @@ export interface Client {
   nom: string;
   telephone: string;
   adresse?: string;
+  deleted?: boolean; // soft delete flag
 }
 
 export interface InvoiceItem {
@@ -97,7 +99,18 @@ export async function updateProduct(id: number, product: Partial<Product>) {
 }
 
 export async function deleteProduct(id: number) {
-  return await db.products.delete(id);
+  const invoices = await db.invoices.toArray();
+  const hasInvoice = invoices.some((invoice) =>
+    invoice.items.some((item) => item.productId === id)
+  );
+
+  if (hasInvoice) {
+    await db.products.update(id, { deleted: true });
+    return 1; // Soft delete
+  }
+
+  await db.products.delete(id);
+  return 0; // Hard delete
 }
 
 export async function getProduct(id: number) {
@@ -105,18 +118,21 @@ export async function getProduct(id: number) {
 }
 
 export async function getAllProducts() {
-  return await db.products.toArray();
+  const products = await db.products.toArray();
+  return products.filter((product) => !product.deleted);
 }
 
 export async function searchProducts(query: string) {
-  return await db.products
+  const results = await db.products
     .where('reference')
     .startsWithIgnoreCase(query)
     .toArray();
+  return results.filter((product) => !product.deleted);
 }
 
 export async function getProductsByCategory(categorie: string) {
-  return await db.products.where('categorie').equals(categorie).toArray();
+  const results = await db.products.where('categorie').equals(categorie).toArray();
+  return results.filter((product) => !product.deleted);
 }
 
 // CRUD Operations for Clients
@@ -129,7 +145,15 @@ export async function updateClient(id: number, client: Partial<Client>) {
 }
 
 export async function deleteClient(id: number) {
-  return await db.clients.delete(id);
+  const invoices = await db.invoices.where('clientId').equals(id).toArray();
+
+  if (invoices.length > 0) {
+    await db.clients.update(id, { deleted: true });
+    return 1; // Soft delete
+  }
+
+  await db.clients.delete(id);
+  return 0; // Hard delete
 }
 
 export async function getClient(id: number) {
@@ -137,7 +161,8 @@ export async function getClient(id: number) {
 }
 
 export async function getAllClients() {
-  return await db.clients.toArray();
+  const clients = await db.clients.toArray();
+  return clients.filter((client) => !client.deleted);
 }
 
 export async function searchClients(query: string) {

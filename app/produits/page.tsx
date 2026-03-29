@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAllProducts, getProductsByCategory, Product } from '@/lib/db';
+import { getAllProducts, getProductsByCategory, deleteProduct, Product } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { useNotification } from '@/lib/store';
 import { Edit2, Trash2, Plus } from 'lucide-react';
@@ -60,11 +60,16 @@ export default function Products() {
     setShowForm(true);
   }
 
-  function handleDelete(product: Product) {
+  async function handleDelete(product: Product) {
     if (confirm(`Êtes-vous sûr de vouloir supprimer "${product.nom}"?`)) {
-      // Delete will be called from ProductForm after edit
-      loadProducts();
-      showNotification('Produit supprimé', 'success');
+      const result = await deleteProduct(product.id || 0);
+      await loadProducts();
+
+      if (result === 0) {
+        showNotification('Produit supprimé', 'success');
+      } else {
+        showNotification('Produit marqué comme supprimé', 'warning');
+      }
     }
   }
 

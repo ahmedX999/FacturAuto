@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAllClients, Client } from '@/lib/db';
+import { getAllClients, deleteClient, Client } from '@/lib/db';
 import { useNotification } from '@/lib/store';
 import { Edit2, Trash2, Phone, MapPin, Plus } from 'lucide-react';
 import ClientForm from '@/components/ClientForm';
@@ -117,14 +117,20 @@ export default function Clients() {
                         <Edit2 size={20} />
                       </button>
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (
                             confirm(
                               `Êtes-vous sûr de vouloir supprimer "${client.nom}"?`
                             )
                           ) {
-                            loadClients();
-                            showNotification('Client supprimé', 'success');
+                            const result = await deleteClient(client.id || 0);
+                            await loadClients();
+
+                            if (result === 0) {
+                              showNotification('Client supprimé', 'success');
+                            } else {
+                              showNotification('Client marqué comme supprimé', 'warning');
+                            }
                           }
                         }}
                         className="text-red-600 hover:text-red-700"

@@ -12,18 +12,21 @@ export default function Notification() {
     success: 'bg-green-100',
     error: 'bg-red-100',
     info: 'bg-blue-100',
+    warning: 'bg-yellow-100',
   }[type];
 
   const textColor = {
     success: 'text-green-800',
     error: 'text-red-800',
     info: 'text-blue-800',
+    warning: 'text-yellow-800',
   }[type];
 
   const Icon = {
     success: CheckCircle,
     error: AlertCircle,
     info: InfoIcon,
+    warning: AlertCircle,
   }[type];
 
   return (

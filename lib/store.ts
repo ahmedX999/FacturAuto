@@ -54,8 +54,8 @@ export const useSearch = create<SearchState>((set) => ({
 
 interface NotificationState {
   message: string | null;
-  type: 'success' | 'error' | 'info';
-  show: (message: string, type: 'success' | 'error' | 'info') => void;
+  type: 'success' | 'error' | 'info' | 'warning';
+  show: (message: string, type: 'success' | 'error' | 'info' | 'warning' ) => void;
   hide: () => void;
 }
 
